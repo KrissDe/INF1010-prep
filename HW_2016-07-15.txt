@@ -1,0 +1,8 @@
+https://www.hackerrank.com/domains/java/java-introduction/difficulty/all/page/1
+https://www.hackerrank.com/domains/java/java-strings/difficulty/all/page/1
+https://www.hackerrank.com/domains/java/java-data-structure/difficulty/all/page/1:
+  - Java 1D Array ... Java 1D Array (Part 2)
+  - Generics
+  - (page 2) Sort (using sortPart -- bubble sort)
+https://www.hackerrank.com/domains/data-structures/linked-lists/difficulty/all/page/1:
+  - at least the first several items

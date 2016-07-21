@@ -1,0 +1,38 @@
+- move all the files related to our lessons to a dedicated directory (it will probably be a repo)
+
+- https://www.hackerrank.com/challenges/compare-two-linked-lists:
+  implement a stand-alone program (add code to read the list from stdin and call
+  the comparison method)
+- implement CompareLists in a different way (lists are equal iff elements at some position are equal)
+- investigate Oppgave5.java, comment lines and write down questions
+ 
+- https://www.hackerrank.com/domains/data-structures/linked-lists/difficulty/all/page/1:
+  - update the stand-alone program with methods for all the tasks that are done
+    - class LinkedList {
+	Node head;
+	public void insert(int data, int position) {
+	  ...
+	}
+	
+        public void compare(LinkedList other) {
+	  ...
+	}
+        
+      }
+      
+      public class Main {
+	main() { // test LinkedList
+	  read the list 1
+	  read the list 2
+	  
+	  list1.insert(10, 1);
+	  if (list1.compare(list2)) { print ... }
+	  
+	}
+      }
+      
+  - implement at least 4 tasks among the 7 remaining ones
+  
+  
+  - from 2016 exam paper: translate what you want to discuss
+  
