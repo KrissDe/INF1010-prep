@@ -1,0 +1,90 @@
+- implement doubly linked list 
+
+
+  class LList<T> {
+    Node first;
+    Node last;
+    int size;
+      
+    class Node {
+      int data;
+      Node next;
+      Node prev;
+    }
+  }
+
+  class Main {
+    void test() {
+      LList<int> list = new LList<int>();
+      assert list.empty(); // read about assert keyword and enable it
+  }
+Capacity:
+
+empty
+    Test whether container is empty (public member function )
+
+size
+    Return size (public member function )
+
+
+Element access:
+
+front
+    Access first element (public member function )
+
+back
+    Access last element (public member function )
+
+
+Modifiers:
+
+push_front(T data)
+    Insert element at beginning (public member function )
+
+pop_front
+    Delete first element (public member function )
+
+push_back
+    Add element at the end (public member function )
+
+pop_back
+    Delete last element (public member function )
+
+insert(int pos, int n_copies, String 
+    Insert elements (public member function )
+
+erase
+    Erase elements (public member function )
+
+swap
+    Swap content (public member function )
+
+clear
+    Clear content (public member function )
+
+
+Operations:
+
+splice
+    Transfer elements from list to list (public member function )
+
+remove
+    Remove elements with specific value (public member function )
+
+unique
+    Remove duplicate values (public member function )
+
+merge
+    Merge sorted lists (public member function )
+
+sort
+    Sort elements in container (public member function )
+    bubbleSort (swap)
+
+reverse
+    Reverse the order of elements (public member function )
+
+    
+    
+    
+- try to solve at least some tasks in "KLASSES, INTERFACE AND INHERITANCE" and write down question
