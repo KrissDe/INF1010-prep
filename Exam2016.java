@@ -189,13 +189,25 @@ we use method merge that is partially completed:
 	}
 	
 	// what do we know about the lists a and b here?
-	// some code must be put in here as exercise 11b 
+	// some code must be put in here as exercise 11b
       }
 
       
       
 11a. What do we know about the lists a and b after the while-loop in the method merge?
+
+      - while-loop here is used for sorting the most part of the elements from the both linked lists until one of the linked lists (or eventually both)
+	become empty. After the loop the most elements from the linked lists are sorted and put into alphabetical order into the resulting scope c. 
+	Now the situation when there are still elements in one of the scopes needs to be handled.
 11b. Complete method merge.
+
+      if(fromA != null){
+	c.insertTail(fromA);
+      }else{
+        c.insertTail(fromB);
+      }
+      
+      return c;
 
 12. Implement main-method that uses threads to parallellize insertion sort and merging. You can but not obliged to use wait()/notify
 in this task. But both insertion in the linked lists and merging must be executed in parallell.

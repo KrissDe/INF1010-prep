@@ -34,7 +34,7 @@ public class LinkedLists<...> {
 public class LinkedLists<T extends Comparable<T>>{
   private HeadNode lhead; //list head 
   private TailNode ltail; //list tail 
-  private int size;	  // size of objects in the list
+  private int size;  // size of objects in the list
   
   void swap(Node a) {  }
 
@@ -54,14 +54,17 @@ public class LinkedLists<T extends Comparable<T>>{
   
   private class HeadNode implements Elem  { // done
     Elem next; // Node, TailNode
-    //HeadNode() { }
+    
+    HeadNode() { }
+    
     int compareTo(Elem other) {
       if (next != null) { // next is the first element of the list
 	return next.compareTo(other.obj);
       } else { // next == null: the first element is treated as +inf (any obj < +inf) {
 	return 1; // +inf is always greater
-      }	
+      }
     }  
+    
     public void insertOrdered(Node newNode){ // head, data node
 /*
 7. Pay attention to how the insertOrdered is defined in the scope. It calls the recursive
@@ -84,10 +87,13 @@ belongs to what class.
   
   private class TailNode implements Elem {
     Elem prev;
-    //TailNode() { }    
+    
+    TailNode() { }    
+    
     int compareTo(Elem other) {
       return 1; // tail = +inf
     }
+    
     public void insertOrdered(Node newNode){
 /*
 7. Pay attention to how the insertOrdered is defined in the scope. It calls the recursive
@@ -107,6 +113,11 @@ belongs to what class.
   private class Node implements Elem {
     Elem next;    
     T obj;
+    
+    Node(T object){
+      this.obj = object;
+    }
+    
     int compareTo(Elem k){
       return obj.compareTo(k.obj);
     }
@@ -163,6 +174,7 @@ called. If the list is empty the method must throw exception. */
   }
   
   public boolean empty() { 
+      return size == 0;
   
     
   }
@@ -257,17 +269,17 @@ have 2 methods each, all with different signatures?
 
       public class Mainclass{
 	public static void main(String[] args){
-	    C c = new E();
-	    IC ic = c;
-	    IBD ibd = c;
-	    Object o = new B();
-	    IA ia = (IA) o;
-	    ic = (IC) o;
-	    A a = (C) ic;
-	    E e = new A();
-	    IBD ibd = (IBD) a;
-	    a = (B) o;
-	    c = new C();
+	    C c = new E(); ok
+	    IC ic = c; error? cast is needed
+	    IBD ibd = c; error? no connection with E
+	    Object o = new B(); ok
+	    IA ia = (IA) o; ok
+	    ic = (IC) o; ok?
+	    A a = (C) ic; error? not allowed cast for abstract object type
+	    E e = new A(); ok
+	    IBD ibd = (IBD) a; initialization of a is wrong so this line can't be initialized
+	    a = (B) o; ok?
+	    c = new C(); error, not allowed for abstract classes
 	}
       }
 
@@ -323,7 +335,20 @@ we use method merge that is partially completed:
       
       
 11a. What do we know about the lists a and b after the while-loop in the method merge?
+
+	- while-loop here is used for sorting the most part of the elements from the both linked lists until one of the linked lists (or eventually both)
+	become empty. After the loop the most elements from the linked lists are sorted and put into alphabetical order into the resulting scope c. 
+	Now the situation when there are still elements in one of the scopes needs to be handled.
+	
 11b. Complete method merge.
+
+      if(fromA != null){
+	c.insertTail(fromA);
+      }else{
+        c.insertTail(fromB);
+      }
+      
+      return c;
 
 12. Implement main-method that uses threads to parallellize insertion sort and merging. You can but not obliged to use wait()/notify
 in this task. But both insertion in the linked lists and merging must be executed in parallell.
