@@ -15,7 +15,6 @@ class B implements IBD extends A {}
 class E extends C {}
 class G implements IG extends D {}
 
-
 abstract class WebPageElement {}
 abstract class InteractiveWebPageElement extends WebPageElement {}
 
@@ -24,10 +23,10 @@ Task 14.
 G  x = new G();
 IG y = new G();
 D  z = new G();
-a) 10 -> 4
+a) 10
 b) 17
 c) 21
-d) If it is an interface, it's methods are only signatures and are not implemented but is it legal to call methods from Object? -> 4
+d) If it is an interface, it's methods are only signatures and are not implemented but is it legal to call methods from Object?
 
 Task 15+16.
 Go through.

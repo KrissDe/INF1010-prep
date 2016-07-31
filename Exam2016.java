@@ -199,6 +199,7 @@ we use method merge that is partially completed:
       - while-loop here is used for sorting the most part of the elements from the both linked lists until one of the linked lists (or eventually both)
 	become empty. After the loop the most elements from the linked lists are sorted and put into alphabetical order into the resulting scope c. 
 	Now the situation when there are still elements in one of the scopes needs to be handled.
+	
 11b. Complete method merge.
 
       if(fromA != null){

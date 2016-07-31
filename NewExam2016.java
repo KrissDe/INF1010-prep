@@ -94,19 +94,22 @@ belongs to what class.
       return 1; // tail = +inf
     }
     
-    public void insertOrdered(Node newNode){
+    public void insertOrdered(Node newNode){ // insertAfterThisNodeIfNeccesary
 /*
 7. Pay attention to how the insertOrdered is defined in the scope. It calls the recursive
 insert-method in the list head. Complete the classes HeadNode, TailNode and Node with the 
 recursive method insertOrdered where it's required. Make it clear in the answer what method 
 belongs to what class.
 */
+      /*
       Node b = tail;
       Node a = b.prev;
       a.next = newNode;
       newNode.next = b;
       b.prev = newNode;  
       size++;
+      */
+      assert false;
     }
   }
   
@@ -183,11 +186,11 @@ called. If the list is empty the method must throw exception. */
 
 class Main{
   public static void main (Strin[] a){
-    LinkedLists<String> llStr = new LinkedLists<String>();
+    LinkedLists<String> llStr = new LinkedLists<String>(); // 0
     //data structure here is as in the picture
-    llStr.insertTail(new String("sss"));
+    llStr.insertTail(new String("sss")); // I
     //
-    llStr.insertOrdered(new String("yyy"));
+    llStr.insertOrdered(new String("yyy")); // II
     llStr.insertOrdered(new String("ttt"));
     llStr.insertTail(new String("aaa"));
     llStr.insertOrdered(new String("bbb"));
@@ -267,29 +270,76 @@ have 2 methods each, all with different signatures?
 14c. How many methods are available in the object of class G?
 14d. How many methods is it possible to call from variable ia after assignment in the line 8 of the program?
 
+
+  inteface Figure { void draw(); }
+  ...
+  Figure[] figs = ...
+  figs[0] = new Square(new Point(1,1), new Point(3,3));
+  figs[1] = new Cube(...);
+  ...
+  for (Figure fig: figs) {
+    fig.draw();
+  }
+
       public class Mainclass{
 	public static void main(String[] args){
 	    C c = new E(); ok
 	    IC ic = c; error? cast is needed
-	    IBD ibd = c; error? no connection with E
-	    Object o = new B(); ok
-	    IA ia = (IA) o; ok
-	    ic = (IC) o; ok?
+	    IBD ibd = c; error? no connection with C
+	    Object o = new B(); ok // o1, ..., o11 (hidden: i1,i2,ia1,ia2,ibd1,ibd2)
+	    IA ia = (IA) o; ok -> error // ia1,ia2 not in o1, ..., o11
+	    ic = (IC) o; ok? // ic: ic1,ic2 not in 
 	    A a = (C) ic; error? not allowed cast for abstract object type
 	    E e = new A(); ok
 	    IBD ibd = (IBD) a; initialization of a is wrong so this line can't be initialized
 	    a = (B) o; ok?
+	    
 	    c = new C(); error, not allowed for abstract classes
+	}
+      }
+      
+      
+      public class Mainclass{
+	public static void main(String[] args){
+	    C c = new E(); ok
+	    //    100
+	    
+	    IC ic = (IC) c; // ic=100
+	    //IBD ibd = c; error? no connection with C
+	    
+	    //Object o = new B(); ok // o1, ..., o11 (hidden: i1,i2,ia1,ia2,ibd1,ibd2)
+	    //IA ia = (IA) o; ok -> error // ia1,ia2 not in o1, ..., o11
+	    
+	    A o = new B(); ok // o1, ..., o11,i1,i2,ia1,ia2 (hidden: ibd1,ibd2)
+	    // o=200
+	    IA ia = (IA) o; ok // ia1,ia2 in o1, ..., o11,i1,i2,ia1,ia2
+	    // ia=200
+	    
+	    IA ic = (IA) o; ok? 
+	    // ic=200
+	    
+	    A a = (A) o; // a: o1,...,o11, // ERROR, TODO
+	    // a=200
+	    	    
+	    a = new E(); ok // a: o1,...,o11,i1,i2,ia1,ia2
+	    
+	    //IBD ibd = (IBD) a; initialization of a is wrong so this line can't be initialized
+	    a = (A) o; ok?
+	    
+	    c = new E(); error, not allowed for abstract classes
+	    
 	}
       }
 
       
+
+      
 15. Remove sentences that give errors either during compilation or execution. Write the main-method once more 
 without error sentences.
-(TODO)
 
 16. Draw data structure the way it is right before the main-method finishes execution. You don't need to draw 
 variables that have value null or objects that are not being pointed to/referred by variables.
+(TODO)
 */
 
 
