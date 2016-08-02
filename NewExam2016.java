@@ -404,5 +404,35 @@ we use method merge that is partially completed:
 in this task. But both insertion in the linked lists and merging must be executed in parallell.
 
 
-
 */
+
+    public static void main(Sring[] args){
+	String fileName = "manywords.txt";
+	String[] words = new String[390000];
+	words.readWordsFromFile(fileName);
+	
+	private final int numThreads = 39;
+	final int numElements = 10000; //per insert
+	
+	private CountDownLatch cdlatch = new CountDownLatch(numThreads);
+	LinkedLists<String> wordsList = new LinkedLists<String>();
+	LinkedLists<String> resultingList = new LinkedLists<String>();
+	
+	
+	for(int i=0; i<numThreads; i++){ //how to merge simultaneously?
+	  new InsertThread(wordsList, numElements, words, i).start();
+	  
+	}
+	//this must happen inside InsertThread..
+	/* for(int i=0; i<numElements-1; i++){ 
+	    wordsList.insertOrdered(words[i]);
+	  }
+	*/
+	
+	
+	
+	
+	
+	
+	
+    }

@@ -12,7 +12,12 @@ go through other tasks in Exam 2015 and prepare questions
 (Note for the next lesson:
 discuss task 15)
 
-
+Common parents:
+1. E, IBD: no common
+2. B, IA: A
+3. C, I: A
+4. B, G: A, (IBD?)
+5. IC, IBD: no common
 
 Q 
 QA
