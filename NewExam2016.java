@@ -337,9 +337,16 @@ have 2 methods each, all with different signatures?
 15. Remove sentences that give errors either during compilation or execution. Write the main-method once more 
 without error sentences.
 
+Common parents:
+1. E, IBD: no common
+2. B, IA: A
+3. C, I: A
+4. B, G: A, (IBD?)
+5. IC, IBD: no common
+
 16. Draw data structure the way it is right before the main-method finishes execution. You don't need to draw 
 variables that have value null or objects that are not being pointed to/referred by variables.
-(TODO)
+
 */
 
 
@@ -366,6 +373,8 @@ we use method merge that is partially completed:
 	//merge ordered lists a and b together to the new ordered list c
 	
 	LinkedLists<String> c = new LinkedLists<String>();
+	// A: a, a, a, ...
+	// B: b, b, b, ...
 	String fromA = a.getFromFront();
 	String fromB = b.getFromFront();
 	while(fromA != null && fromB != null){
@@ -377,6 +386,9 @@ we use method merge that is partially completed:
 	    fromB = b.getFromFront();
 	  }
 	}
+	// A: []
+	// B: b, b, b, ...
+	
 	
 	// what do we know about the lists a and b here?
 	// some code must be put in here as exercise 11b 
@@ -384,27 +396,272 @@ we use method merge that is partially completed:
 
       
       
-11a. What do we know about the lists a and b after the while-loop in the method merge?
+11a. What do we know about the lists a and b after the while-loop in the method merge? +
 
-	- while-loop here is used for sorting the most part of the elements from the both linked lists until one of the linked lists (or eventually both)
+	- while-loop here is used for sorting/merging the most part of the elements from the both linked lists until one of the linked lists
+	(or eventually both)
 	become empty. After the loop the most elements from the linked lists are sorted and put into alphabetical order into the resulting scope c. 
-	Now the situation when there are still elements in one of the scopes needs to be handled.
+	Now the situation when there are still _elements_ in one of the scopes needs to be handled.
 	
-11b. Complete method merge.
+11b. Complete method merge. +
 
+    while (fromA != null || fromB != null) {
       if(fromA != null){
 	c.insertTail(fromA);
+	fromA = a.getFromFront();
       }else{
         c.insertTail(fromB);
+	fromB = b.getFromFront();
       }
+    }
+    
+    
+    while (! a.empty()) c.insertTail(a.getFromFront());
+    while (! b.empty()) c.insertTail(b.getFromFront());
+    
+    
+        
       
       return c;
 
 12. Implement main-method that uses threads to parallellize insertion sort and merging. You can but not obliged to use wait()/notify
 in this task. But both insertion in the linked lists and merging must be executed in parallell.
-
-
 */
+    void sortPart(LinkedList<String> partList, String[] allStrings, int indexFrom, int indexTo) {
+      for (int i = indexFrom; i <= indexTo; i++) {
+	parlist.insertOrdered(allStrings[i]);
+      }
+    }
+    
+    public static main(String[] args) {
+      // - read lines from the file -> allStrings[]
+      //   aaa ccc
+      //   zzz
+      final int n_strings = 390000;
+      String[] strings = new String[n_strings];
+      Scanner scFile;
+      try {
+	scFile = new Scanner(new File("file.txt"));
+      } catch (Exception e) {
+	e.printStackTrace();
+	return;
+	 }
+	int i_string = 0;
+      while (scFile.hasNextLine()) {
+	Scanner scLine = new Scanner(scFile.nextLine());
+	while (scLine.hasNext()) {
+	  assert i_string < n_strings;
+	  strings[i_string] = scLine.next();
+	  i_string++;
+	}
+      }
+      
+      assert i_string == n_strings;
+      
+      
+      // SORTING
+      
+      final int n_sort_threads = 10; // n_sort_threads
+      final int n_strings_per_thread = n_strings / n_sort_threads;
+      SortThread[] sortThreads = new SortThread[n_sort_threads];
+      for (int i = 0; i < n_sort_threads; i++) {
+      // i=0: indexFrom = 0, indexTo = 0 + 10000 - 1 = 9999
+      // i=1: indexFrom = 10000 * 1 = 10000, indexTo = 10000 + 10000 - 1 = 19999
+      // ...
+	int indexFrom = n_strings_per_thread * i;
+	int indexTo = indexFrom + n_strings_per_thread - 1;
+	sortThreads[i] = new SortThread(strings, indexFrom, indexTo);
+	sortThreads[i].start()
+      }
+      
+      LinkedList<String>[] partLists = new LinkedList<String>[n_sort_threads]; // 
+      for (int i = 0; i < n_sort_threads; i++) {
+	sortThreads[i].join();
+	partLists[i] = sortThreads[i].getPartList();
+      }
+      // i=9: threads 0, ..., 9 are finished
+      
+      // MERGING
+      
+      // - Level 1
+      
+      final int n_merge1_threads = 5;
+      MergeThread[] mergeThreads1 = new MergeThreads[n_merge1_threads];
+      for (int i = 0; i < n_merge1_threads; i++) {
+      // i=0: (0, 1)
+      // i=1: (2, 3)
+	int index1 = i * 2;
+	int index2 = index1 + 1;
+	mergeThreads1[i] = new MergeThread(partLists[index1], partLists[index2]);
+	mergeThreads1[i].start();
+	}
+	
+      LinkedList<String>[] resLists = new LinkedList<String>[9]; // see the drawing
+      for (int i = 0; i < n_sort_threads; i++) {
+	mergeThreads1[i].join();
+	resLists[i] = mergeThreads1[i].getResList();
+      }
+      
+      // - Level 2
+      MergeThread mergeThread2a = new MergeThread(resLists[0], resLists[1]);
+      MergeThread mergeThread2b = new MergeThread(resLists[2], resLists[3]);
+      
+      mergeThread2a.start();
+      mergeThread2b.start();
+      
+      mergeThread2a.join();
+      mergeThread2b.join();
+      
+      resLists[5] = mergeThread2a.getResList();
+      resLists[6] = mergeThread2b.getResList();
+      
+      // - Level 3
+      MergeThread mergeThread3 = new MergeThread(resLists[5], resLists[6]);
+      mergeThread3.start();
+      mergeThread3.join();
+      resLists[7] = mergeThread3.getResList();
+
+      // - Level 4: TODO
+
+      
+      // - sort each section of allStrings[] in parallel -> partLists[0], ..., partLists[9]
+      // - 
+      
+    }
+
+
+    public static main(String[] args) {
+      // - read lines from the file -> allStrings[]
+      //   aaa ccc
+      //   zzz
+      final int n_strings = 390000;
+      String[] strings = new String[n_strings];
+      Scanner scFile;
+      try {
+	scFile = new Scanner(new File("file.txt"));
+      } catch (Exception e) {
+	e.printStackTrace();
+	return;
+	 }
+	int i_string = 0;
+      boolean done = false;	
+      while (!done && scFile.hasNextLine()) {
+	Scanner scLine = new Scanner(scFile.nextLine());
+	while (!done && scLine.hasNext()) {
+	  assert i_string < n_strings;
+	  strings[i_string] = scLine.next();
+	  i_string++;
+	  if (i_string == n_strings) {
+	    done = true;
+	  }
+	}
+      }
+      
+      assert i_string == n_strings;
+      
+      
+      // SORTING
+      
+      final int n_sort_threads = 39;
+      final int n_strings_per_thread = n_strings / n_sort_threads;
+      SortThread[] sortThreads = new SortThread[n_sort_threads];
+      for (int i = 0; i < n_sort_threads; i++) {
+      // i=0: indexFrom = 0, indexTo = 0 + 10000 - 1 = 9999
+      // i=1: indexFrom = 10000 * 1 = 10000, indexTo = 10000 + 10000 - 1 = 19999
+      // ...
+	int indexFrom = n_strings_per_thread * i;
+	int indexTo = indexFrom + n_strings_per_thread - 1;
+	sortThreads[i] = new SortThread(strings, indexFrom, indexTo);
+	sortThreads[i].start()
+      }
+      
+      LinkedList<String>[] partLists = new LinkedList<String>[64]; // 
+      for (int i = 0; i < n_sort_threads; i++) {
+	sortThreads[i].join();
+	partLists[i] = sortThreads[i].getPartList();
+      }
+      for (int i = n_sort_thread; i < 64; i++) {
+	partLists[i] = new LinkedList<String>();
+	}
+      
+      
+      // MERGING
+      
+      // - Level 1: 64 -> 32
+      MergeThread[] mergeThreads1 = new MergeThreads[32];
+      for (int i = 0; i < mergeThreads1.length; i++) {
+	int index1 = i * 2;
+	int index2 = index1 + 1;
+	mergeThreads1[i] = new MergeThread(partLists[index1], partLists[index2]);
+	mergeThreads1[i].start();
+      }
+      
+      for (int i = 0; i < n_sort_threads; i++) {
+	mergeThreads1[i].join();
+      }
+      
+      // - Level 2: 32 -> 16
+      MergeThread[] mergeThreads2 = new MergeThreads[16];
+      for (int i = 0; i < mergeThreads2.length; i++) {
+	int index1 = i * 2;
+	int index2 = index1 + 1;
+	mergeThreads2[i] = new MergeThread(mergeThreads1[index1].getResList(), 
+	                                   mergeThreads1[index2].getResList());
+	mergeThreads2[i].start();
+      }
+      
+      for (int i = 0; i < n_sort_threads; i++) {
+	mergeThreads2[i].join();
+      }
+      
+      // - Level 3: 16 -> 8
+      MergeThread[] mergeThreads3 = new MergeThreads[16];
+      for (int i = 0; i < mergeThreads3.length; i++) {
+	int index1 = i * 2;
+	int index2 = index1 + 1;
+	mergeThreads3[i] = new MergeThread(mergeThreads2[index1].getResList(), 
+	                                   mergeThreads2[index2].getResList());
+	mergeThreads3[i].start();
+      }
+      
+      for (int i = 0; i < n_sort_threads; i++) {
+	mergeThreads3[i].join();
+      }
+      
+      // - Level 4: 8 -> 4
+      MergeThread[] mergeThreads4 = new MergeThreads[4];
+      for (int i = 0; i < mergeThreads4.length; i++) {
+	int index1 = i * 2;
+	int index2 = index1 + 1;
+	mergeThreads4[i] = new MergeThread(mergeThreads3[index1].getResList(), 
+	                                   mergeThreads3[index2].getResList());
+	mergeThreads4[i].start();
+      }
+      
+      for (int i = 0; i < n_sort_threads; i++) {
+	mergeThreads4[i].join();
+      }
+      
+      // - Level 5: 4 -> 2
+      // ...
+      
+      // - Level 6: 2 -> 1
+      // ...
+      
+      mergeThreads6[0].getResList().print();
+      
+    }
+    
+    // TODO:
+    // - implement SortThread, MergeThread
+    // - compile and run the program for 39 words (change the constants)
+    // - compile and run the program for 78 words (change the constants)
+    // - compile and run the program for 39000 words (change the constants)
+    // - try to implement the code for levels 1-6 usign a for/while loop
+    //   (mergeThreadsPrev[32] -(data)-> mergeThreads[32] -(copy)-> mergeThreadsPrev[32])
+    
+    // go through other tasks in Exam 2015 and prepare questions
+
 
     public static void main(Sring[] args){
 	String fileName = "manywords.txt";

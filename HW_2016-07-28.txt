@@ -19,10 +19,12 @@ Common parents:
 4. B, G: A, (IBD?)
 5. IC, IBD: no common
 
+Common children
+
 Q 
-QA
-QK
-QAB
-QAC
-QABC
-G
+QA -- Q
+QK -- Q
+QAB -- QA
+QAC -- QA
+QABC -- QAB
+G -- interface
