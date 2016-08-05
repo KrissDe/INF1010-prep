@@ -1,13 +1,38 @@
 //Task 3
+
 class LList<T extends Comparable<T>> {
   private Node head;
   
+  /* 3c - write the class ListEnd. Objects of this class will be used for two special nodes, the list head and the
+      list tail. The list head is always the first node and the tail always the last
+      node in the link list. Use polymorphism to ensure that the list head node is
+      «less than» all other nodes, and to ensure that the list tail node is «greater
+      than» all other nodes.
+  */
+  
   private class ListEnd extends Node { 
-    //Needs to be discussed. Do we need to kind of iterate the list and check if the largest element is in the last position in the list
-    //and therefore create a pointer of class ListEnd to it?
+    // Needs to be discussed. 
+    
+    protected ListEnd listHead, listTail; 
+    private Node helpNode, firstNode, lastNode;
+    
+    ListEnd() {
+      firstNode = head;
+      lastNode = head;
+      
+      while(head.next != null) {
+	assert firstNode.compare(head) == 0;
+	assert lastNode.next.compare(head) == 1;
+	head = head.next;
+      }    
+      
+      listHead = (ListEnd) head;
+      listTail = (ListEnd) helpNode;         
+      
+    }
   }
   
-  // c
+  
   private class Node {
     protected T t ;
     // pointer to the object to be put into the list
@@ -18,19 +43,27 @@ class LList<T extends Comparable<T>> {
       t = newObject;
     }
     
-    // a
+    /* 3a - write the method compare(Node k). The method should work as compareTo, ie return an integer greater than zero
+       if the object k.t points out is less than the object (this node’s) t is pointing at.
+    */
+    
     int compare(Node k) { 
-      if(this.t > k.t) return 1;
+      if(this.t >= k.t) return 1;
       else return 0;
     }
 
     
-    // b
+    /* 3b - write the recursive method insert(Node newNode) adding a new node into the linked list pointed to by
+       foran in the Liste class. You do not get full score for this task if the method is not recursive.
+    */
+    
     void insert(Node newNode) {
       assert next != null;
-      if(next.compare(newNode) == 1){ //next>newNode
+      
+      if(next.compare(newNode) == 1){ //next >= newNode
 	newNode.next = next;
 	next = newNode;
+      
       }else{
 	next.insert(newNode);
       }
@@ -43,9 +76,13 @@ class LList<T extends Comparable<T>> {
       next.print();
     }
   }
-  //d
+  
+  // 3d - Write the constructor Liste() {...}. The list is initialized with its head and tail here.
+  ListEnd newListEnds;
+  
   LList() {
-    head = null;
+    head = null; // it is actually done automatically, right? I think there is no need for this line but the task confuses me
+    newListEnds = new ListEnd(); //since we need to initialize tail somehow - variable for the tail of the list is not in the precode...
   }
 
   

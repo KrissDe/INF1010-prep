@@ -2,32 +2,53 @@
 
 Node next, Node previous, Node a;
 
-1a) How many objects are there in the picture?
-1b) How many different types are there?
-1c) How many variables are there in the picture?
+1a) How many objects are there in the picture? 4 (boxes illustrate objects)
+1b) How many different types are there? 1 (type Node)
+1c) How many variables are there in the picture? 3 (Node a, Node neste, Node forrige)
 
 2. Implement method void swap(Node n) such that being called swap(a)
 swaps node a points at with node a.next. In the picture there are 2 middle 
 node objects that are coloured more grey. You can assume that there is a 
 node before and a node after these 2 nodes that need to be swapped.
 
+	void bytt(Node n) {
+	  Node n1 = n.forrige;
+	  Node n2 = n;
+	  Node n3 = n.neste;
+	  Node n4 = n.neste.neste;
+	  
+	  n1.neste = n3;
+	  n2.neste = n4;
+	  n2.forrige = n3;
+	  n3.neste = n2;
+	  n3.forrige = n1;
+	  n4.forrige = n2;
+	}
+
 LINKED LIST SCOPE
 
 Program sketch for the scope that uses ll as a data structure */
 
-public class LinkedLists<T extends Comparable<T>>{
+public class LinkedLists<T extends Comparable<T>> {
   private ListHead lhead; //list head 
   private ListTail ltail; //list tail 
-  private int sum;	  // sum of objects in the list
+  private int size;  // sum of objects in the list
 
 
-  LinkedLists(){ }
+  LinkedLists(){ 
+    lhead = new ListHead(); //is initialized automatically
+    ltail = new ListTail(); //is initialized automatically
+    size = 0; //is initialized automatically
+    lhead.next = ltail;
+    ltail.prev = lhead; // why is it possible to assign lhead of type ListHead to ltail.prev of type AbstrNode? 
+			// is it because of casting downwards (AbstrNode -> ListHead) ?
+  }
 
-  private abstract class AbstrNode{
+  private abstract class AbstrNode {
     T obj;
     AbstrNode next;
 
-    AbstrNode(T t){
+    AbstrNode(T t) {
       obj = t;
       next = null;
     }
@@ -36,17 +57,72 @@ public class LinkedLists<T extends Comparable<T>>{
     abstract void insertOrdered(AbstrNode k);
   }
   
-  private class ListHead extends AbstrNode { }
-  private class ListTail extends AbstrNode { }
+  private class ListHead extends AbstrNode {
+    
+    ListHead() {
+	/* if we don't use obj in ListHead and obj+next in ListTail
+	   do we need to operate with them in the constructor?
+	*/
+      
+    }
+    
+    int compareTo(AbstrNode k){
+      if(next != null){ // next is the first element in the list (like Node head in a traditional LL implementation)
+	return next.compareTo(k.obj); // shouldn't it be next.obj ?
+      }else{
+	return 1;
+      }
+    }
+    
+    void insertOrdered(AbstrNode k){
+      assert next != null; //but what if there is an empty list and we want to insert the first element?
+     
+     if (next.compareTo(newNode) >= 0) {
+	// next >= newNode
+	// 1) next = tail = +inf
+	newNode.next = next;
+	next = newNode;
+      } else {
+	next.insertOrdered(newNode);
+      }
+      size++;  
+    }
+    
+    
+  }
+  
+  private class ListTail extends AbstrNode {
+    AbstrNode prev;
+    
+    ListTail() {
+    
+    }
+    
+    //why do we return 1 in any case? what if we want to compare the tail with an object that is larger? 
+    int compareTo(AbstrNode k){
+      return 1;
+    }
+    
+    void insertOrdered(AbstrNode k){
+      assert false; //no need to implement this method for tail
+    }
+  }
+  
   private class Node extends AbstrNode {
-    ...
+    
+    Node() {
+
+    }
+    
     int compareTo(AbstrNode k){
       return obj.compareTo(k.obj);
     }
-    ...
+    
   }
   
-  public int sum() {return sum;}
+  public int sum() {
+    return sum;
+  }
   
   //this method must not be changed
   public void insertOrdered(T newComparable){
@@ -54,9 +130,36 @@ public class LinkedLists<T extends Comparable<T>>{
     lhead.insertOrdered(newNode);
   }
   
-  public void insertTail(T newComparable) { }
-  public ... getFromFront() { }
-  public boolean empty() { }
+  public void insertTail(T newComparable) { 
+    Node newNode = new Node(newComparable);
+    ListTail b = ltail;
+    AbstrNode a = b.prev; //why can't it be of type Node since it's the real Node prev points at?
+    
+    newNode.next = b;
+    a.next = newNode;
+    b.prev = newNode; 
+    //we need to increase the size of the scope here, right? since there is a new object we are inserting 
+  }
+  
+  public T getFromFront() throws OutOfBoundsException { 
+    if (empty()) {
+      throw new OutOfBoundsException("The list is empty");
+    }
+    
+    
+    Node a = lhead;
+    Node b = a.next;
+    Node c = b.next;
+    
+    a.next = c;
+    
+    return b.data; 
+    
+  }
+  
+  public boolean empty() { 
+    return size == 0;
+  }
 
 }
 
@@ -99,19 +202,160 @@ belongs to what class.
 
 8. Implement method getFromFront in the class LinkedLists such that the first node 
 (not the list head) is removed and the object obj points to is returned to where it's been
-called. If the list is empty the method must throw exception.
+called. If the list is empty the method must throw exception. +ok
 
 9. Draw data structure that will be created by main-methof in the program sketch. In addition
-to the objects inserted you must draw the list head and list tail.
+to the objects inserted you must draw the list head and list tail. +ok (see 2016-9.jpg)
 
 10. Since list head and list tail don't need obj-variable and list tail doesn't need
 next-pointer, we want to remove these variables from AbstrNode. After that we will have a class
 that can be defined as interface. Let us call it as Elem since it's an interface for all the list 
 elements (nodes and list ends). Implement interface and classes ListHead, ListTail 
-and Node once more. You don't need to write methods that are not being changed.
+and Node once more. You don't need to write methods that are not being changed. +ok (see code downwards)
 
 */
 
+// HERE IS IMPLEMENTATION WITH INTERFACE ELEM
+
+public class LinkedLists<T extends Comparable<T>> {
+  private ListHead lhead; //list head 
+  private ListTail ltail; //list tail 
+  private int size;  // sum of objects in the list
+
+
+  LinkedLists(){ 
+    lhead = new ListHead(); //is initialized automatically
+    ltail = new ListTail(); //is initialized automatically
+    size = 0; //is initialized automatically
+    lhead.next = ltail;
+    ltail.prev = lhead; // why is it possible to assign lhead of type ListHead to ltail.prev of type AbstrNode? 
+			// is it because of casting downwards (AbstrNode -> ListHead) ?
+  }
+  
+  private interface Elem {
+    int compareTo(Elem k);
+    void insertOrdered(Elem k);
+  }
+
+  private class ListHead implements Elem {
+    
+    ListHead() {
+	/* if we don't use obj in ListHead and obj+next in ListTail
+	   do we need to operate with them in the constructor?
+	*/
+      
+    }
+    
+    int compareTo(Elem k){
+      if(next != null){ // next is the first element in the list (like Node head in a traditional LL implementation)
+	return next.compareTo(k.obj); // shouldn't it be next.obj ?
+      }else{
+	return 1;
+      }
+    }
+    
+    void insertOrdered(Elem k){
+      assert next != null; //but what if there is an empty list and we want to insert the first element?
+     
+     if (next.compareTo(newNode) >= 0) {
+	// next >= newNode
+	// 1) next = tail = +inf
+	newNode.next = next;
+	next = newNode;
+	
+      } else {
+	next.insertOrdered(newNode);
+      }
+      size++;  
+    }
+    
+    
+  }
+  
+  private class ListTail implements Elem {
+    Elem prev;
+    
+    ListTail() {
+    
+    }
+    
+    //why do we return 1 in any case? what if we want to compare the tail with an object that is larger? 
+    int compareTo(Elem k){
+      return 1;
+    }
+    
+    void insertOrdered(Elem k){
+      assert false; //no need to implement this method for tail
+    }
+  }
+  
+  private class Node implements Elem {
+    
+    Node() {
+
+    }
+    
+    int compareTo(Elem k){
+      return obj.compareTo(k.obj);
+    }
+    
+  }
+  
+  public int sum() {
+    return sum;
+  }
+  
+  //this method must not be changed
+  public void insertOrdered(T newComparable){
+    Node newNode = new Node(newComparable);
+    lhead.insertOrdered(newNode);
+  }
+  
+  public void insertTail(T newComparable) { 
+    Node newNode = new Node(newComparable);
+    ListTail b = ltail;
+    Elem a = b.prev; //why can't it be of type Node since it's the real Node prev points at?
+    
+    newNode.next = b;
+    a.next = newNode;
+    b.prev = newNode; 
+    //we need to increase the size of the scope here, right? since there is a new object we are inserting 
+  }
+  
+  public T getFromFront() throws OutOfBoundsException { 
+    if (empty()) {
+      throw new OutOfBoundsException("The list is empty");
+    }
+    
+    
+    Node a = lhead;
+    Node b = a.next;
+    Node c = b.next;
+    
+    a.next = c;
+    
+    return b.data; 
+    
+  }
+  
+  public boolean empty() { 
+    return size == 0;
+  }
+
+}
+
+
+class Main{
+  public static void main (Strin[] a){
+    LinkedLists<String> llStr = new LinkedLists<String>();
+    //data structure here is as in the picture
+    llStr.insertTail(new String("sss"));
+    llStr.insertOrdered(new String("yyy"));
+    llStr.insertOrdered(new String("ttt"));
+    llStr.insertTail(new String("aaa"));
+    llStr.insertOrdered(new String("bbb"));
+  }
+}
 
 
 /* KLASSES, INTERFACE AND INHERITANCE
