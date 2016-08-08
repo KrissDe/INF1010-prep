@@ -30,6 +30,32 @@ class LList<T extends Comparable<T>> {
       listTail = (ListEnd) helpNode;         
       
     }
+    
+    int compare(Node k) { 
+      return 1;
+    }
+  }
+  
+  private class ListEnd extends Node { 
+    private Node prev;
+    
+    ListEnd() {
+      prev = null;
+      next = null;
+      // either prev = ... or next = ... should be called after the object is created!
+    }
+    
+    int compare(Node k) {
+      assert prev == null && next != null  ||  prev != null && next == null;
+      if (prev == null) { // head
+	// assert false;
+	return -1;
+      } else { // tail
+	return 1;
+      }
+    }	
+    
+    
   }
   
   
@@ -48,8 +74,9 @@ class LList<T extends Comparable<T>> {
     */
     
     int compare(Node k) { 
-      if(this.t >= k.t) return 1;
-      else return 0;
+      return t.compareTo(k.t);      
+      //if(this.t >= k.t) return 1;
+      //else return 0;
     }
 
     
@@ -60,7 +87,9 @@ class LList<T extends Comparable<T>> {
     void insert(Node newNode) {
       assert next != null;
       
-      if(next.compare(newNode) == 1){ //next >= newNode
+      if(next.compare(newNode) > 0){ //next >= newNode
+      // strcmp: abc3 '3'=0x33
+      //         abc1 '1'=0x31
 	newNode.next = next;
 	next = newNode;
       
@@ -78,11 +107,20 @@ class LList<T extends Comparable<T>> {
   }
   
   // 3d - Write the constructor Liste() {...}. The list is initialized with its head and tail here.
-  ListEnd newListEnds;
+  //ListEnd newListEnds;
   
   LList() {
-    head = null; // it is actually done automatically, right? I think there is no need for this line but the task confuses me
-    newListEnds = new ListEnd(); //since we need to initialize tail somehow - variable for the tail of the list is not in the precode...
+    /*
+    head = new Node(); // it is actually done automatically, right? I think there is no need for this line but the task confuses me
+    ///newListEnds = new ListEnd(); //since we need to initialize tail somehow - variable for the tail of the list is not in the precode...
+    head.next = new ListEnd();
+    */
+    
+    head = new ListEnd(); // head.prev = null, head.next = null
+    ListEnd tail = new ListEnd(); // tail.prev = null, tail.next = null
+    
+    head.next = tail;
+    tail.prev = head;
   }
 
   

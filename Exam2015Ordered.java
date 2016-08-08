@@ -28,3 +28,5 @@ class MainClass {
 // Task 2. Data structure (see 2015-2.jpg)
 
 // Task 3. See Exam2015.java
+
+// Task 4. GUI

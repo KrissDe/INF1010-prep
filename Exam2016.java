@@ -24,6 +24,9 @@ node before and a node after these 2 nodes that need to be swapped.
 	  n3.forrige = n1;
 	  n4.forrige = n2;
 	}
+	
+	
+	
 
 LINKED LIST SCOPE
 
@@ -43,6 +46,7 @@ public class LinkedLists<T extends Comparable<T>> {
     ltail.prev = lhead; // why is it possible to assign lhead of type ListHead to ltail.prev of type AbstrNode? 
 			// is it because of casting downwards (AbstrNode -> ListHead) ?
   }
+    
 
   private abstract class AbstrNode {
     T obj;
@@ -66,12 +70,15 @@ public class LinkedLists<T extends Comparable<T>> {
       
     }
     
+    
     int compareTo(AbstrNode k){
-      if(next != null){ // next is the first element in the list (like Node head in a traditional LL implementation)
-	return next.compareTo(k.obj); // shouldn't it be next.obj ?
-      }else{
-	return 1;
-      }
+      //if(next != null){ // next is the first element in the list (like Node head in a traditional LL implementation)
+	//return next.compareTo(k); // shouldn't it be next.obj ?
+      //}else{
+	//return 1;
+      //}
+      assert false;
+      return 1;
     }
     
     void insertOrdered(AbstrNode k){
@@ -114,9 +121,21 @@ public class LinkedLists<T extends Comparable<T>> {
 
     }
     
+    /*
+    Node(int x) { }
+    Node(String x) { }
+    
+    Node(T x) { }
+    
+    int m(int x) {}
+    int m(String x) {}
+    String m(String x) {}
+    */
+    
     int compareTo(AbstrNode k){
-      return obj.compareTo(k.obj);
+      return obj.compareTo(k.obj); // >0: obj > k.obj, =0: =, <0: <
     }
+    
     
   }
   
@@ -139,6 +158,7 @@ public class LinkedLists<T extends Comparable<T>> {
     a.next = newNode;
     b.prev = newNode; 
     //we need to increase the size of the scope here, right? since there is a new object we are inserting 
+    size++;
   }
   
   public T getFromFront() throws OutOfBoundsException { 
@@ -152,6 +172,7 @@ public class LinkedLists<T extends Comparable<T>> {
     Node c = b.next;
     
     a.next = c;
+    size--;
     
     return b.data; 
     
@@ -440,19 +461,29 @@ we use method merge that is partially completed:
       
 11a. What do we know about the lists a and b after the while-loop in the method merge?
 
-      - while-loop here is used for sorting the most part of the elements from the both linked lists until one of the linked lists (or eventually both)
+     - while-loop here is used for sorting/merging the most part of the elements from the both linked lists until one of the linked lists
+	(or eventually both)
 	become empty. After the loop the most elements from the linked lists are sorted and put into alphabetical order into the resulting scope c. 
-	Now the situation when there are still elements in one of the scopes needs to be handled.
+	Now the situation when there are still _elements_ in one of the scopes needs to be handled.
 	
 11b. Complete method merge.
 
+    while (fromA != null || fromB != null) {
+      
       if(fromA != null){
 	c.insertTail(fromA);
+	fromA = a.getFromFront();
+      
       }else{
         c.insertTail(fromB);
+	fromB = b.getFromFront();
       }
-      
-      return c;
+    }    
+    
+    while (! a.empty()) c.insertTail(a.getFromFront());
+    while (! b.empty()) c.insertTail(b.getFromFront());
+     
+    return c;
 
 12. Implement main-method that uses threads to parallellize insertion sort and merging. You can but not obliged to use wait()/notify
 in this task. But both insertion in the linked lists and merging must be executed in parallell.

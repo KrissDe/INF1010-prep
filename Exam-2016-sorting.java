@@ -10,7 +10,7 @@
 
 
 // MAIN VERSION
-class Exam-2016-sorting {
+class Exam_2016_sorting {
 
     public static void main(String[] args) {
       // - read lines from the file -> allStrings[]
@@ -79,34 +79,42 @@ class Exam-2016-sorting {
       
       // MERGING IN A LOOP
       
-	 int powerOfTwo = 32;
+	 int powerOfTwo = 32; // # of mergers
 	 MergeThread[] prevMergeThread = new MergeThread[powerOfTwo];
 	 
-	  while(powerOfTwo/2 > 0){
+	  while(powerOfTwo > 0) { // 16>0, 8>0, 4>0, 2>0, 1>0, 0>0  // mergers > 0
 	    MergeThread[] mergeThreads = new MergeThread[powerOfTwo];
 	    
 	    for(int i = 0; i<mergeThreads.length; i++){
 	      int index1 = i * 2;
 	      int index2 = index1 + 1;
 	      
-	      if(powerOfTwo == 32){
-	      
-		mergeThreads[i] = new MergeThread(partLists[index1], partLists[index2]);
-		mergeThreads[i].start();
-		
-		
+	  
+	      LinkedList<String> source1, source2;
+	      if(powerOfTwo == 32){	      
+		source1 = partLists[index1];
+		source2 = partLists[index2];
 	      }else{
+		//for(int i = 0; i < mergeThreads.length; i++){
+		source1 = prevMergeThread[index1].getResList();
+		source2 = prevMergeThread[index2].getResList();
+		 
+		//}
+	      }   
 	      
-		for(int i = 0; i < mergeThreads.length; i++){
-		  mergeThreads[i] = new MergeThread(prevMergeThread[index1].getResList(), prevMergeThread[index2].getResList());
-		  mergeThreads[i].start();
-		}
-	      }      
+	      mergeThreads[i] = new MergeThread(source1, source2);
+	      
+	      mergeThreads[i].start();
 	    }
 	    
-	    for (int i = 0; i < n_sort_threads; i++) {
+	    for (int i = 0; i < mergeThreads.length; i++) {
 	      mergeThreads[i].join();
 	    }
+	    /*
+	    for (MergeThread m : mergeThreads) {
+	      m.join();
+	    }
+	    */
 		
 	    for(int j = 0; j < prevMergeThread.length; j++){
 	      prevMergeThread[j] = mergeThreads[j];
@@ -222,22 +230,23 @@ class Exam-2016-sorting {
 }
 
 class MergeThread extends Thread {
-	private LinkedList<String> list1 = new LinkedList<String>();
-	private LinkedList<String> list2 = new LinkedList<String>();
+	private LinkedList<String> list1, list2, resList;
 
 
-	public MergeThread(LinkedList<String> l1, LinkedList<String> l2) {
-	  this.list1 = l1;
-	  this.list2 = l2;
+	public MergeThread(LinkedList<String> list1, LinkedList<String> list2) {
+	  this.list1 = list1;
+	  this.list2 = list2;
 	}
-
+ //MergeThread t = this;
 	public void run() {
 	  merge(list1, list2);
 	}
+	
 }
 
 class SortThread extends Thread {
 	private String[] values;
+	private LinkedList<String> partList;	
 	private int start;
 	private int stop;
 
@@ -251,7 +260,20 @@ class SortThread extends Thread {
 	  sort(values, start, stop);
 	}
 	
-	public LinkedList<String> getPartList() {
+	void sort(String[] values, int start, int stop) {
+	  partList = new LinkedList<String>();
+	  for (int i = start; i <= stop; i++) {
+	    partList.insertOrdered(values[i]);
+	  }
+	}
 	
+	public LinkedList<String> getPartList() {
+	  return partList;
 	}
 }
+
+// - LinkedList from Exam 2014
+// - LinkedList from Exam 2013
+
+// ...
+
