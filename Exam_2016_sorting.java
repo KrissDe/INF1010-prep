@@ -1,3 +1,6 @@
+import java.io.*;
+import java.util.*;
+
     // TODO:
     // - implement SortThread, MergeThread
     // - compile and run the program for 39 words (change the constants)
@@ -17,10 +20,9 @@ class Exam_2016_sorting {
       //   aaa ccc
       //   zzz
       
-      final int n_strings = 390000;
+      final int n_strings = 390000; 
       String[] strings = new String[n_strings];
       Scanner scFile;
-      
       try {
 	scFile = new Scanner(new File("file.txt"));
       
@@ -29,14 +31,14 @@ class Exam_2016_sorting {
 	return;
       }
       
-      int i_string = 0;
+      int i_string = 0; //i-th word 
       boolean done = false;
       
-      while (!done && scFile.hasNextLine()) {
+      while (!done && scFile.hasNextLine()) { //until eof
 	Scanner scLine = new Scanner(scFile.nextLine());
 	
 	while (!done && scLine.hasNext()) {
-	  assert i_string < n_strings;
+	  assert i_string < n_strings; //accept only 39 000 words
 	  strings[i_string] = scLine.next();
 	  i_string++;
 	  
@@ -51,9 +53,9 @@ class Exam_2016_sorting {
       
       // SORTING
       
-      final int n_sort_threads = 39;
+      final int n_sort_threads = 39; 
       final int n_strings_per_thread = n_strings / n_sort_threads;
-      SortThread[] sortThreads = new SortThread[n_sort_threads];
+      SortThread[] sortThreads = new SortThread[n_sort_threads]; //array to keep all threads 
       
       for (int i = 0; i < n_sort_threads; i++) {
       // i=0: indexFrom = 0, indexTo = 0 + 10000 - 1 = 9999
@@ -62,14 +64,14 @@ class Exam_2016_sorting {
 	int indexFrom = n_strings_per_thread * i;
 	int indexTo = indexFrom + n_strings_per_thread - 1;
 	sortThreads[i] = new SortThread(strings, indexFrom, indexTo);
-	sortThreads[i].start()
+	sortThreads[i].start();
       }
       
       LinkedList<String>[] partLists = new LinkedList<String>[64]; // 64 because it's the nearest power of 2 so that each time there will be 2 lists to merge
       
       for (int i = 0; i < n_sort_threads; i++) {
-	sortThreads[i].join();
-	partLists[i] = sortThreads[i].getPartList();
+	sortThreads[i].join(); //wait for all the threads to finish sorting
+	partLists[i] = sortThreads[i].getPartList(); //fill the list with the sorted sublists to merge them afterwards
       }
       
       for (int i = n_sort_threads; i < 64; i++) {
@@ -91,7 +93,7 @@ class Exam_2016_sorting {
 	      
 	  
 	      LinkedList<String> source1, source2;
-	      if(powerOfTwo == 32){	      
+	      if(powerOfTwo == 32){      
 		source1 = partLists[index1];
 		source2 = partLists[index2];
 	      }else{
@@ -124,6 +126,7 @@ class Exam_2016_sorting {
 	    
 	  }
 	  
+	  prevMergeThread[0].getResList().print();
       
       
       
@@ -132,7 +135,7 @@ class Exam_2016_sorting {
       
       //REGULAR MERGING
       // - Level 1: 64 -> 32
-      MergeThread[] mergeThreads1 = new MergeThread[32];
+     /* MergeThread[] mergeThreads1 = new MergeThread[32];
       
       for (int i = 0; i < mergeThreads1.length; i++) {
 	int index1 = i * 2;
@@ -224,10 +227,12 @@ class Exam_2016_sorting {
 	mergeThreads6[i].join();
       }
       
-      mergeThreads6[0].getResList().print();
+      mergeThreads6[0].getResList().print();*/
       
-    }
-}
+    } // end main method
+} //end main class
+
+
 
 class MergeThread extends Thread {
 	private LinkedList<String> list1, list2, resList;
@@ -239,14 +244,54 @@ class MergeThread extends Thread {
 	}
  //MergeThread t = this;
 	public void run() {
-	  merge(list1, list2);
+	  resList = merge(list1, list2);
+	}
+	
+    LinkedList<String> merge(LinkedList<String> a, LinkedList<String> b){
+	//merge ordered lists a and b together to the new ordered list c
+	
+	LinkedList<String> c = new LinkedList<String>();
+	String fromA = a.getFromFront();
+	String fromB = b.getFromFront();
+	
+	while(fromA != null && fromB != null){
+	  if(fromA.compareTo(fromB) <= 0){
+	    c.insertTail(fromA);
+	    fromA = a.getFromFront();
+	  }else{
+	    c.insertTail(fromB);
+	    fromB = b.getFromFront();
+	  }
+	}
+	
+	while (fromA != null || fromB != null) {
+      
+	  if(fromA != null){
+	    c.insertTail(fromA);
+	    fromA = a.getFromFront();
+	  
+	  }else{
+	    c.insertTail(fromB);
+	    fromB = b.getFromFront();
+	  }
+	}    
+	
+	while (! a.empty()) c.insertTail(a.getFromFront());
+	while (! b.empty()) c.insertTail(b.getFromFront());
+	
+	return c;
+	
+      }
+	
+	public LinkedList<String> getResList() {
+	  return resList;
 	}
 	
 }
 
 class SortThread extends Thread {
 	private String[] values;
-	private LinkedList<String> partList;	
+	private LinkedList<String> partList;
 	private int start;
 	private int stop;
 
@@ -270,6 +315,161 @@ class SortThread extends Thread {
 	public LinkedList<String> getPartList() {
 	  return partList;
 	}
+}
+
+
+
+
+class LinkedList<T extends Comparable<T>> {
+  private ListHead lhead; //list head 
+  private ListTail ltail; //list tail 
+  private int size;  // sum of objects in the list
+
+
+  LinkedList(){ 
+    lhead = new ListHead(); //is initialized automatically
+    ltail = new ListTail(); //is initialized automatically
+    size = 0; //is initialized automatically
+    lhead.next = ltail;
+    ltail.prev = lhead; // why is it possible to assign lhead of type ListHead to ltail.prev of type AbstrNode? 
+			// is it because of casting downwards (AbstrNode -> ListHead) ?
+  }
+    
+
+  private abstract class AbstrNode {
+    T obj;
+    AbstrNode next;
+
+    AbstrNode(T t) {
+      obj = t;
+      next = null;
+    }
+
+    abstract int compareTo(AbstrNode k);
+    abstract void insertOrdered(AbstrNode k);
+  }
+  
+  private class ListHead extends AbstrNode {
+    
+    //ListHead() {
+	/* if we don't use obj in ListHead and obj+next in ListTail
+	   do we need to operate with them in the constructor?
+	*/
+      
+    //}
+    
+    
+    int compareTo(AbstrNode k){
+      
+      assert false;
+      return 1;
+    }
+    
+    void insertOrdered(AbstrNode k){
+      assert next != null; //but what if there is an empty list and we want to insert the first element?
+     
+     if (next.obj.compareTo(k.obj) >= 0) {
+	// next >= newNode
+	// 1) next = tail = +inf
+	k.next = next;
+	next = k;
+      } else {
+	next.insertOrdered(k);
+      }
+      size++;  
+    }
+    
+    
+  }
+  
+  private class ListTail extends AbstrNode {
+    AbstrNode prev;
+    
+    //ListTail() {
+    
+   // }
+    
+    //why do we return 1 in any case? what if we want to compare the tail with an object that is larger? 
+    int compareTo(AbstrNode k){
+      return 1;
+    }
+    
+    void insertOrdered(AbstrNode k){
+      assert false; //no need to implement this method for tail
+    }
+  }
+  
+  private class Node extends AbstrNode {
+    
+   // Node() {
+
+    //}
+    
+    Node(T t){
+      super(t);
+    }
+    
+    
+    int compareTo(AbstrNode k){
+      return obj.compareTo(k.obj); // >0: obj > k.obj, =0: =, <0: <
+    }
+    
+    
+  }
+  
+  public int sum() {
+    return size;
+  }
+  
+  //this method must not be changed
+  public void insertOrdered(T newComparable){
+    Node newNode = new Node(newComparable);
+    lhead.insertOrdered(newNode);
+  }
+  
+  public void insertTail(T newComparable) { 
+    Node newNode = new Node(newComparable);
+    ListTail b = ltail;
+    AbstrNode a = b.prev; //why can't it be of type Node since it's the real Node prev points at?
+    
+    newNode.next = b;
+    a.next = newNode;
+    b.prev = newNode; 
+    //we need to increase the size of the scope here, right? since there is a new object we are inserting 
+    size++;
+  }
+  
+  public T getFromFront() throws IndexOutOfBoundsException { 
+    if (empty()) {
+      throw new IndexOutOfBoundsException("The list is empty");
+    }
+    
+    
+    Node a = lhead;
+    Node b = a.next;
+    Node c = b.next;
+    
+    a.next = c;
+    size--;
+    
+    return b.obj; 
+    
+  }
+  
+  public boolean empty() { 
+    return size == 0;
+  }
+  
+  public void print() {
+    Node runner = lhead;
+    
+    while(runner.next != null){
+      System.out.print(runner + " ");
+      runner = runner.next;
+    }
+    System.out.println();
+  }
+
 }
 
 // - LinkedList from Exam 2014

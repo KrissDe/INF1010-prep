@@ -185,7 +185,7 @@ public class LinkedLists<T extends Comparable<T>> {
 }
 
 class Main{
-  public static void main (Strin[] a){
+  public static void main (String[] a){
     LinkedLists<String> llStr = new LinkedLists<String>();
     //data structure here is as in the picture
     llStr.insertTail(new String("sss"));
