@@ -2,13 +2,12 @@ Task 13.
 
 interface I {}
 interface IA {}
-//interface IBD implements I {}
 interface IBD extends I {}
 interface IC {}
 interface IG {}
 
 abstract class C implements IC extends A {}
-abstract class D implements IBD extends C {} //is it legal?
+abstract class D implements IBD extends C {} 
 
 class A implements I, IA {}
 class B implements IBD extends A {}

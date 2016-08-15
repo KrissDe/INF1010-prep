@@ -320,6 +320,8 @@ public class LinkedLists<T extends Comparable<T>> {
       return obj.compareTo(k.obj);
     }
     
+    
+    
   }
   
   public int sum() {
@@ -386,26 +388,41 @@ must be empty, ie.there must be empty between { }. There must be only classes an
 are in the picture. Write all interfaces first, followed by abstract classes. In the end write all the
 non-abstract classes in alphabetical order. 1 definition per line.
 
-14a. How many different objects can be created?
+interface I {}
+interface IA {}
+interface IBD extends I {}
+interface IC {}
+interface IG {}
+
+abstract class C implements IC extends A {}
+abstract class D implements IBD extends C {} 
+
+class A implements I, IA {}
+class B implements IBD extends A {}
+class E extends C {}
+class G implements IG extends D {}
+
+14a. How many different objects can be created? 4 
 14b. How many methods is it possible to call in the object of class B when we know that 
 Object has 11 methods and classes don't have their own methods and that all interfaces in the hierarchy/program
-have 2 methods each, all with different signatures?
-14c. How many methods are available in the object of class G?
-14d. How many methods is it possible to call from variable ia after assignment in the line 8 of the program?
+have 2 methods each, all with different signatures? 17
+14c. How many methods are available in the object of class G? 21
+14d. How many methods is it possible to call from variable ia after assignment in the line 8 of the program? - variable can't be initialized 
+	the way it is proposed in line 8 because o has access only to 11 methods in class Object
 
       public class Mainclass{
 	public static void main(String[] args){
-	    C c = new E();
-	    IC ic = c;
-	    IBD ibd = c;
-	    Object o = new B();
-	    IA ia = (IA) o;
-	    ic = (IC) o;
-	    A a = (C) ic;
-	    E e = new A();
-	    IBD ibd = (IBD) a;
-	    a = (B) o;
-	    c = new C();
+	    C c = new E(); ok
+	    IC ic = c; ok
+	    IBD ibd = c; error, not related to c
+	    Object o = new B(); ok
+	    IA ia = (IA) o; error - ia methods not included in B access
+	    ic = (IC) o; error - no connection with B
+	    A a = (C) ic; error - illegal cast to abstract class
+	    E e = new A(); ok
+	    IBD ibd = (IBD) a; error - a couldn't be initialized
+	    a = (B) o; ok
+	    c = new C(); error - impossible to create objects of abstract class
 	}
       }
 
@@ -413,8 +430,18 @@ have 2 methods each, all with different signatures?
 15. Remove sentences that give errors either during compilation or execution. Write the main-method once more 
 without error sentences.
 
+C c = new E();
+IC ic = c;
+Object o = new B();
+E e = new A();
+a = (B) o;
+
+
 16. Draw data structure the way it is right before the main-method finishes execution. You don't need to draw 
 variables that have value null or objects that are not being pointed to/referred by variables.
+
+See 2016-16.jpg
+
 */
 
 
@@ -487,4 +514,7 @@ we use method merge that is partially completed:
 
 12. Implement main-method that uses threads to parallellize insertion sort and merging. You can but not obliged to use wait()/notify
 in this task. But both insertion in the linked lists and merging must be executed in parallell.
+
+See Exam_2016_sorting.java
+
 */

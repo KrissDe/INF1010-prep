@@ -20,7 +20,7 @@ class Exam_2016_sorting {
       //   aaa ccc
       //   zzz
       
-      final int n_strings = 390000; 
+      final int n_strings = 39000; 
       String[] strings = new String[n_strings];
       Scanner scFile;
       try {
@@ -34,7 +34,7 @@ class Exam_2016_sorting {
       int i_string = 0; //i-th word 
       boolean done = false;
       
-      while (!done && scFile.hasNextLine()) { //until eof
+      while (!done && scFile.hasNextLine()) { //until eof70
 	Scanner scLine = new Scanner(scFile.nextLine());
 	
 	while (!done && scLine.hasNext()) {
@@ -67,21 +67,37 @@ class Exam_2016_sorting {
 	sortThreads[i].start();
       }
       
-      LinkedList<String>[] partLists = new LinkedList<String>[64]; // 64 because it's the nearest power of 2 so that each time there will be 2 lists to merge
+      //LinkedList<String>[] partLists = (LinkedList[]) new Object[64];
+      Object[] partLists = new Object[64];
+      //LinkedList<String>[] partLists = new LinkedList<String>[64]; 
+      // 64 because it's the nearest power of 2 so that each time there will be 2 lists to merge
       
       for (int i = 0; i < n_sort_threads; i++) {
-	sortThreads[i].join(); //wait for all the threads to finish sorting
-	partLists[i] = sortThreads[i].getPartList(); //fill the list with the sorted sublists to merge them afterwards
+	try {
+	  sortThreads[i].join(); //wait for all the threads to finish sorting
+	} catch (InterruptedException e) {
+	  e.printStackTrace();
+	}
+	partLists[i] = (Object) sortThreads[i].getPartList(); //fill the list with the sorted sublists to merge them afterwards
       }
       
       for (int i = n_sort_threads; i < 64; i++) {
-	partLists[i] = new LinkedList<String>();
+	partLists[i] = (Object) new LinkedList<String>();
+      }
+      
+      
+      // PRINTING
+             
+      for (int i = 0; i < n_sort_threads; i++) {
+	((LinkedList<String>) partLists[i]).print();
+	//partLists[i] = (Object) sortThreads[i].getPartList(); //fill the list with the sorted sublists to merge them afterwards
       }
       
       
       // MERGING IN A LOOP
       
-	 int powerOfTwo = 32; // # of mergers
+	 final int powerOfTwoInitial = 32; // # of mergers
+	 int powerOfTwo = powerOfTwoInitial; // # of mergers
 	 MergeThread[] prevMergeThread = new MergeThread[powerOfTwo];
 	 
 	  while(powerOfTwo > 0) { // 16>0, 8>0, 4>0, 2>0, 1>0, 0>0  // mergers > 0
@@ -89,13 +105,12 @@ class Exam_2016_sorting {
 	    
 	    for(int i = 0; i<mergeThreads.length; i++){
 	      int index1 = i * 2;
-	      int index2 = index1 + 1;
-	      
+	      int index2 = index1 + 1;      
 	  
 	      LinkedList<String> source1, source2;
-	      if(powerOfTwo == 32){      
-		source1 = partLists[index1];
-		source2 = partLists[index2];
+	      if(powerOfTwo == powerOfTwoInitial){      
+		source1 = (LinkedList<String>) partLists[index1];
+		source2 = (LinkedList<String>) partLists[index2];
 	      }else{
 		//for(int i = 0; i < mergeThreads.length; i++){
 		source1 = prevMergeThread[index1].getResList();
@@ -104,21 +119,36 @@ class Exam_2016_sorting {
 		//}
 	      }   
 	      
-	      mergeThreads[i] = new MergeThread(source1, source2);
 	      
+	      System.out.println("Merging (" + i + "):");
+	      //source1.print();
+	      //source2.print();
+	      
+	      mergeThreads[i] = new MergeThread(source1, source2);
 	      mergeThreads[i].start();
+	      
 	    }
 	    
 	    for (int i = 0; i < mergeThreads.length; i++) {
-	      mergeThreads[i].join();
+	      try {
+		mergeThreads[i].join();
+		
+	      System.out.println("Result (" + i + "):");
+		//mergeThreads[i].getResList().print();
+		
+	      } catch (InterruptedException e) {
+		e.printStackTrace();
+	      }
+	    
 	    }
+	    
 	    /*
 	    for (MergeThread m : mergeThreads) {
 	      m.join();
 	    }
 	    */
 		
-	    for(int j = 0; j < prevMergeThread.length; j++){
+	    for(int j = 0; j < mergeThreads.length; j++){
 	      prevMergeThread[j] = mergeThreads[j];
 	    }
 	    
@@ -225,7 +255,7 @@ class Exam_2016_sorting {
       
       for (int i = 0; i < n_sort_threads; i++) {
 	mergeThreads6[i].join();
-      }
+//       }
       
       mergeThreads6[0].getResList().print();*/
       
@@ -262,8 +292,11 @@ class MergeThread extends Thread {
 	    c.insertTail(fromB);
 	    fromB = b.getFromFront();
 	  }
+	  //a.print();
+	  //b.print();
 	}
 	
+	//*
 	while (fromA != null || fromB != null) {
       
 	  if(fromA != null){
@@ -274,10 +307,13 @@ class MergeThread extends Thread {
 	    c.insertTail(fromB);
 	    fromB = b.getFromFront();
 	  }
-	}    
+	} 
+	//*/
 	
-	while (! a.empty()) c.insertTail(a.getFromFront());
-	while (! b.empty()) c.insertTail(b.getFromFront());
+	//a.print();
+	//b.print();
+	//while (! a.empty()) c.insertTail(a.getFromFront());
+	//while (! b.empty()) c.insertTail(b.getFromFront());
 	
 	return c;
 	
@@ -336,87 +372,92 @@ class LinkedList<T extends Comparable<T>> {
   }
     
 
-  private abstract class AbstrNode {
-    T obj;
-    AbstrNode next;
+      private abstract class AbstrNode {
+	T obj;
+	AbstrNode next;
 
-    AbstrNode(T t) {
-      obj = t;
-      next = null;
-    }
+	AbstrNode(T t) {
+	  obj = t;
+	  next = null;
+	}
 
-    abstract int compareTo(AbstrNode k);
-    abstract void insertOrdered(AbstrNode k);
-  }
-  
-  private class ListHead extends AbstrNode {
-    
-    //ListHead() {
-	/* if we don't use obj in ListHead and obj+next in ListTail
-	   do we need to operate with them in the constructor?
-	*/
-      
-    //}
-    
-    
-    int compareTo(AbstrNode k){
-      
-      assert false;
-      return 1;
-    }
-    
-    void insertOrdered(AbstrNode k){
-      assert next != null; //but what if there is an empty list and we want to insert the first element?
-     
-     if (next.obj.compareTo(k.obj) >= 0) {
-	// next >= newNode
-	// 1) next = tail = +inf
-	k.next = next;
-	next = k;
-      } else {
-	next.insertOrdered(k);
+	abstract int compareTo(AbstrNode k);
+	void insertOrdered(AbstrNode k) {
+	  assert next != null; //but what if there is an empty list and we want to insert the first element?
+	  
+	  if (next.compareTo(k) >= 0) {
+	      // next >= newNode
+	      // 1) next = tail = +inf
+	      k.next = next;
+	      if (next.next == null) { // instanceof LinkedList<T>.ListTail) {
+		((ListTail) next).prev = k;
+	      }
+	      next = k;	      
+	      size++; 
+	  } else {
+	    next.insertOrdered(k);
+	  } 
+	}
       }
-      size++;  
-    }
     
     
-  }
+    
   
-  private class ListTail extends AbstrNode {
-    AbstrNode prev;
-    
-    //ListTail() {
-    
-   // }
-    
-    //why do we return 1 in any case? what if we want to compare the tail with an object that is larger? 
-    int compareTo(AbstrNode k){
-      return 1;
-    }
-    
-    void insertOrdered(AbstrNode k){
-      assert false; //no need to implement this method for tail
-    }
-  }
-  
-  private class Node extends AbstrNode {
-    
-   // Node() {
+      private class ListHead extends AbstrNode {
+	
+	ListHead() {
+	  super(null);      
+	}
+	
+	
+	int compareTo(AbstrNode k){
+	  
+	  assert false;
+	  return 1;
+	}	
+      }
 
-    //}
-    
-    Node(T t){
-      super(t);
-    }
-    
-    
-    int compareTo(AbstrNode k){
-      return obj.compareTo(k.obj); // >0: obj > k.obj, =0: =, <0: <
-    }
-    
-    
-  }
-  
+      
+      
+      
+	private class ListTail extends AbstrNode {
+	  AbstrNode prev;
+	  
+	  ListTail() {
+	    super(null);
+	  }
+	  
+	  //why do we return 1 in any case? what if we want to compare the tail with an object that is larger? 
+	  int compareTo(AbstrNode k){
+	    return 1;
+	  }
+	  
+	  void insertOrdered(AbstrNode k){
+	    assert false; //no need to implement this method for tail
+	  }
+	}
+
+	
+	
+	
+	private class Node extends AbstrNode {
+	  
+	// Node() {
+
+	  //}
+	  
+	  Node(T t){
+	    super(t);
+	  }
+	  
+	  
+	  int compareTo(AbstrNode k){
+	    return obj.compareTo(k.obj); // >0: obj > k.obj, =0: =, <0: <
+	  }     
+	}
+
+
+
   public int sum() {
     return size;
   }
@@ -431,29 +472,34 @@ class LinkedList<T extends Comparable<T>> {
     Node newNode = new Node(newComparable);
     ListTail b = ltail;
     AbstrNode a = b.prev; //why can't it be of type Node since it's the real Node prev points at?
+    // a b
+    // a new b
     
     newNode.next = b;
     a.next = newNode;
     b.prev = newNode; 
     //we need to increase the size of the scope here, right? since there is a new object we are inserting 
     size++;
+    
+    System.out.println("After inserting " + newComparable + ": ");
+    //print();
   }
   
   public T getFromFront() throws IndexOutOfBoundsException { 
     if (empty()) {
-      throw new IndexOutOfBoundsException("The list is empty");
+      //throw new IndexOutOfBoundsException("The list is empty");
+      return null;
     }
     
-    
-    Node a = lhead;
-    Node b = a.next;
-    Node c = b.next;
+   // print();
+    AbstrNode a = lhead;
+    AbstrNode b = a.next;
+    AbstrNode c = b.next;
     
     a.next = c;
     size--;
     
     return b.obj; 
-    
   }
   
   public boolean empty() { 
@@ -461,10 +507,11 @@ class LinkedList<T extends Comparable<T>> {
   }
   
   public void print() {
-    Node runner = lhead;
+    AbstrNode runner = lhead;
     
+    System.out.print(size + ": ");
     while(runner.next != null){
-      System.out.print(runner + " ");
+      System.out.print(runner.obj + " ");
       runner = runner.next;
     }
     System.out.println();

@@ -18,29 +18,22 @@ class Konte2014 {
     
     int lineCounter = 1;
     
-    ObjectScope<Object> os1 = new ObjectScope<Object>();
-    os1.insert((Person) p1);
-    os1.insert((Person) p2);
-    os1.insert((Student) s1);
-    os1.insert((Student) s2);
-    os1.insert((Student) s3);
-    os1.insert((Apple) a1);
-    os1.insert((Apple) a2);
-    os1.insert((Kiwi) k1);
-    os1.insert((Kiwi) k2);
-    os1.insert((Banan) b1);
-    
-    /*while(!os1.empty()){
-      
-      System.out.println(counter + ": " + os1.get());
-      counter++;
-    }*/
-    
+    ObjectScope os1 = new ObjectScope();
+    os1.insert(p1);
+    os1.insert(p2);
+    os1.insert(s1);
+    os1.insert(s2);
+    os1.insert(s3);
+    os1.insert(a1);
+    os1.insert(a2);
+    os1.insert(k1);
+    os1.insert(k2);
+    os1.insert(b1);
 
   }
 }
 
-class ObjectScope<Object> {
+class ObjectScope {
   private int size;
   private Node head;
 
@@ -54,10 +47,10 @@ class ObjectScope<Object> {
     }
     
     while(currentNode.next != null){
-      if(!currentNode.data.compare(newNode.data)){
+      if(!currentNode.data.compare(obj)){
 	currentNode = currentNode.next;
       }else{
-	//how to do nothing?
+	return;
       }
     }
     
@@ -99,7 +92,7 @@ class ObjectScope<Object> {
     }
   }
   
-  public void moveAllFromScope(ObjectScope<Object> os){
+  public void moveAllFromScope(ObjectScope os){
     
   }
   
@@ -119,7 +112,6 @@ class ObjectScope<Object> {
   private class Node {
     Object data;
     Node next;
-    int size;
     
     Node(Object o) {
       data = o;
@@ -136,12 +128,12 @@ class Person { //equal on name
   }
   
   public String id() {
-    return "Person with name " + this.name;
+    return name;
   }
   
   public boolean compare(Object o){
     if(o instanceof Person){
-      return this.name.equals((Person) o.name);
+      return this.name.equals(((Person) o).id());
     }
     return false;
   }
@@ -157,12 +149,12 @@ class Student extends Person { //equal on nr
   }
   
   public String id() {
-    return "Student with name " + this.name + " and student number " + this.studentNr;  
+    return studentNr;  
   }    
   
   public boolean compare(Object o){
     if(o instanceof Student) {
-      return this.studentNr.equals((Student) o.studentNr);
+      return this.studentNr.equals(((Student) o).id());
     }
     return false;
   }
@@ -181,7 +173,7 @@ abstract class Frukt { //equal on fruit type
   
   public boolean compare(Object o){
     if(o instanceof Frukt) {
-      return this.type.equals((Frukt) o.id());
+      return this.type.equals(((Frukt) o).id());
     }
     return false;
   }
